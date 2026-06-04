@@ -151,7 +151,7 @@ export default function App() {
       line-height: 1.8;
       padding-top: 4px;
     `;
-    dateEl.textContent = `${year}年 六月 二十五日`;
+    dateEl.textContent = `${year}年 六月`;
 
     topRow.appendChild(nameEl);
     topRow.appendChild(dateEl);
