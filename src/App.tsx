@@ -75,40 +75,163 @@ export default function App() {
   const handleDownload = async (cardId: string, teacherName: string) => {
     if (!window.html2canvas) return;
     setDownloadingId(cardId);
-    const element = document.getElementById(cardId) as HTMLElement;
-    const downloadBtn = element.querySelector<HTMLElement>('.download-btn');
-    const watermark = element.querySelector<HTMLElement>('.card-watermark');
-    if (downloadBtn) downloadBtn.style.display = 'none';
-    if (watermark) watermark.style.display = 'flex';
-    element.style.border = '3px solid #D7E4F7';
-    element.style.borderRadius = '2rem';
 
-    // 等待圖片（包含 Logo）載入完成
-    const images = element.querySelectorAll('img');
-    await Promise.all(Array.from(images).map(img =>
+    // 找到對應的訊息資料
+    const msg = TEACHER_MESSAGES.find(m => m.id === cardId);
+    if (!msg) { setDownloadingId(null); return; }
+
+    // 動態建立下載專用豎版卡片
+    const card = document.createElement('div');
+    card.style.cssText = `
+      position: fixed; left: -9999px; top: 0;
+      width: 540px; min-height: 760px;
+      background: linear-gradient(to bottom, #dde8f5 0%, #e8eff8 35%, #f0e8e4 70%, #ede0dc 100%);
+      border: none;
+      border-radius: 0;
+      display: flex; flex-direction: column;
+      font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong', serif;
+      box-sizing: border-box;
+      overflow: hidden;
+    `;
+
+    // 頂部留白 + 粗線（侵蝕效果用 box-shadow 模擬）
+    const topSpacer = document.createElement('div');
+    topSpacer.style.cssText = 'width: 100%; height: 20px; flex-shrink: 0;';
+    card.appendChild(topSpacer);
+
+    const topBar = document.createElement('div');
+    topBar.style.cssText = `
+      width: 80%; height: 12px; flex-shrink: 0; margin: 0 auto;
+      background: #4B3D3A;
+      box-shadow: 2px 1px 0 #6b5550, -1px 2px 0 #3a2e2b, 3px -1px 0 #5a4642, -2px -1px 0 #4B3D3A;
+      filter: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><filter id='e'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/><feDisplacementMap in='SourceGraphic' scale='3'/></filter></svg>#e");
+    `;
+    card.appendChild(topBar);
+
+    // 內容區（帶 padding）
+    const inner = document.createElement('div');
+    inner.style.cssText = 'flex: 1; padding: 40px 44px 32px 44px; display: flex; flex-direction: column; box-sizing: border-box;';
+    card.appendChild(inner);
+
+    // 頂部資訊列：左側名字 + 右側豎排日期
+    const topRow = document.createElement('div');
+    topRow.style.cssText = 'display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 36px;';
+
+    // 左上角老師名字（豎排）
+    const nameEl = document.createElement('div');
+    nameEl.style.cssText = `
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 38px;
+      font-weight: 900;
+      color: #3F3A38;
+      letter-spacing: 0.1em;
+      line-height: 1.2;
+    `;
+    nameEl.textContent = teacherName;
+
+    // 右上角豎排中文日期
+    const now = new Date();
+    const cnNums = ['〇','一','二','三','四','五','六','七','八','九'];
+    const toCn = (n: number) => String(n).split('').map(d => cnNums[parseInt(d)]).join('');
+    const year = toCn(now.getFullYear());   // e.g. 二〇二六
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const cnMonth = month <= 9 ? cnNums[month] : '十' + (month > 10 ? cnNums[month - 10] : '');
+    const cnDay = day < 10 ? cnNums[day] : (day === 10 ? '十' : (day < 20 ? '十' + cnNums[day - 10] : (day === 20 ? '二十' : '二十' + cnNums[day - 20])));
+    const dateText = `${year}年·${cnMonth}月·${cnDay}日`;
+
+    const dateEl = document.createElement('div');
+    dateEl.style.cssText = `
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 15px;
+      color: #3F3A38;
+      letter-spacing: 0.15em;
+      line-height: 1.8;
+      padding-top: 4px;
+    `;
+    dateEl.textContent = `${year}年 六月 二十五日`;
+
+    topRow.appendChild(nameEl);
+    topRow.appendChild(dateEl);
+    inner.appendChild(topRow);
+
+    // 寄語內容
+    const contentDiv = document.createElement('div');
+    contentDiv.style.cssText = `
+      flex: 1;
+      font-size: 22px;
+      line-height: 2;
+      color: #3F3A38;
+      letter-spacing: 0.05em;
+      text-align: justify;
+      margin-bottom: 32px;
+      padding-right: 40px;
+      white-space: pre-wrap;
+    `;
+    if (msg.image) {
+      const imgEl = document.createElement('img');
+      imgEl.src = msg.image;
+      imgEl.style.cssText = 'width: 100%; border-radius: 0; object-fit: contain;';
+      contentDiv.appendChild(imgEl);
+    } else {
+      contentDiv.textContent = msg.content;
+    }
+    inner.appendChild(contentDiv);
+
+    // 分隔線
+    const hr = document.createElement('div');
+    hr.style.cssText = 'height: 1px; background: #c5d8f0; margin-bottom: 20px;';
+    inner.appendChild(hr);
+
+    // 底部：logo 居左
+    const footer = document.createElement('div');
+    footer.style.cssText = 'display: flex; align-items: center; justify-content: flex-start;';
+    const footerLogo = document.createElement('img');
+    footerLogo.src = '/logo.png';
+    footerLogo.style.cssText = 'height: 28px; object-fit: contain;';
+    footer.appendChild(footerLogo);
+    inner.appendChild(footer);
+
+    // 底部粗線（侵蝕效果）+ 留白
+    const bottomBar = document.createElement('div');
+    bottomBar.style.cssText = `
+      width: 80%; height: 12px; flex-shrink: 0; margin: 0 auto;
+      background: #4B3D3A;
+      box-shadow: 2px 1px 0 #6b5550, -1px 2px 0 #3a2e2b, 3px -1px 0 #5a4642, -2px -1px 0 #4B3D3A;
+      filter: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><filter id='e'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/><feDisplacementMap in='SourceGraphic' scale='3'/></filter></svg>#e");
+    `;
+    card.appendChild(bottomBar);
+
+    const bottomSpacer = document.createElement('div');
+    bottomSpacer.style.cssText = 'width: 100%; height: 20px; flex-shrink: 0;';
+    card.appendChild(bottomSpacer);
+
+    document.body.appendChild(card);
+
+    // 等待圖片載入
+    const imgs = card.querySelectorAll('img');
+    await Promise.all(Array.from(imgs).map(img =>
       img.complete ? Promise.resolve() : new Promise(resolve => { img.onload = resolve; img.onerror = resolve; })
     ));
 
     try {
-      const canvas = await window.html2canvas(element, {
+      const canvas = await window.html2canvas(card, {
         scale: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: null,
         useCORS: true,
         allowTaint: false,
         logging: false,
       });
       const link = document.createElement('a');
       link.download = `毕业寄语-${teacherName}.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.href = canvas.toDataURL('image/png');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } finally {
-      if (downloadBtn) downloadBtn.style.display = 'flex';
-      if (watermark) watermark.style.display = 'none';
-      element.style.border = '';
-      element.style.borderRadius = '';
-      element.classList.remove('downloading');
+      document.body.removeChild(card);
       setDownloadingId(null);
     }
   };
@@ -234,9 +357,19 @@ export default function App() {
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', pointerEvents: 'none', zIndex: 0 }}
       />
 
-      <section className="relative h-screen flex flex-col items-center justify-end bg-center bg-no-repeat" style={{ backgroundImage: 'url(/hero.png)', backgroundSize: '80%', zIndex: 1 }}>
+      {/* 首頁 Hero —— 手機豎版 / 電腦橫版 */}
+      <section className="relative flex flex-col items-center justify-end bg-center bg-no-repeat"
+        style={{ zIndex: 1, minHeight: '100svh' }}
+      >
+        {/* 電腦版背景 */}
+        <div className="absolute inset-0 hidden md:block bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/hero.png)', backgroundSize: '80%' }} />
+        {/* 手機版背景 */}
+        <div className="absolute inset-0 block md:hidden bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/hero-mobile.png)', backgroundSize: 'contain' }} />
+
         <div
-          className="absolute bottom-12 flex flex-col items-center text-slate-600 hover:text-blue-500 transition-colors cursor-pointer animate-bounce"
+          className="relative z-10 mb-10 flex flex-col items-center text-slate-600 hover:text-blue-500 transition-colors cursor-pointer animate-bounce"
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
         >
           <span className="text-sm tracking-widest mb-2 font-medium">开启时光信箱</span>
@@ -244,28 +377,26 @@ export default function App() {
         </div>
       </section>
 
-      <section className="py-20 px-6 max-w-7xl mx-auto" style={{ position: 'relative', zIndex: 1 }}>
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
+      <section className="py-12 md:py-20 px-4 md:px-6 max-w-7xl mx-auto" style={{ position: 'relative', zIndex: 1 }}>
+        <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-10 md:mb-16">
           {CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-6 py-2 rounded-full transition-all border ${activeCategory === cat ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-slate-500 border-transparent hover:bg-blue-50'}`}>
+            <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-4 md:px-6 py-2 rounded-full transition-all border text-sm md:text-base ${activeCategory === cat ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-slate-500 border-transparent hover:bg-blue-50'}`}>
               {cat}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8">
           {filteredMessages.map(msg => (
-            <div key={msg.id} id={msg.id} className={`bg-white rounded-[2rem] p-8 shadow-sm flex flex-col border border-slate-100 transition-transform hover:-translate-y-2 download-border`}>
-              <div className="flex-grow mb-8 text-slate-700 leading-loose text-justify">
+            <div key={msg.id} id={msg.id} className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 shadow-sm flex flex-col border border-slate-100 transition-transform hover:-translate-y-2 download-border">
+              <div className="flex-grow mb-6 md:mb-8 text-slate-700 leading-loose text-justify text-sm md:text-base">
                 {msg.image
                   ? <img src={msg.image} alt={`${msg.name}手写寄语`} className="w-full rounded-xl object-contain max-h-72" />
                   : msg.content
                 }
               </div>
-              <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-                <div className="flex items-center space-x-4">
-                  <h3 className="font-bold text-slate-800">{msg.name}</h3>
-                </div>
+              <div className="flex items-center justify-between pt-4 md:pt-6 border-t border-slate-100">
+                <h3 className="font-bold text-slate-800 text-sm md:text-base">{msg.name}</h3>
                 <button onClick={() => handleDownload(msg.id, msg.name)} className="download-btn p-3 rounded-full bg-slate-50 text-slate-400 hover:bg-blue-500 hover:text-white transition-all">
                   {downloadingId === msg.id ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Download size={18} />}
                 </button>
@@ -279,8 +410,8 @@ export default function App() {
       </section>
       
       {/* 頁面底部 */}
-      <div style={{ position: 'relative', zIndex: 1 }} className="py-10 flex justify-center">
-        <img src="/footer.png" alt="中文系（珠海）2026年毕业季系列活动" style={{ mixBlendMode: 'multiply', maxWidth: '480px', width: '80%' }} />
+      <div style={{ position: 'relative', zIndex: 1 }} className="py-8 md:py-10 flex justify-center">
+        <img src="/footer.png" alt="中文系（珠海）2026年毕业季系列活动" style={{ mixBlendMode: 'multiply', maxWidth: '480px', width: '85%' }} />
       </div>
     </div>
   );
