@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Download, ArrowUp, GraduationCap } from 'lucide-react';
 
+// 偵測微信內置瀏覽器
+const isWeChat = () => /MicroMessenger/i.test(navigator.userAgent);
+// 偵測手機
+const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
 declare global {
   interface Window {
     html2canvas: (element: HTMLElement, options?: object) => Promise<HTMLCanvasElement>;
@@ -63,6 +68,12 @@ const CATEGORIES = ['全部', '党政教师', '专业教师'];
 export default function App() {
   const [activeCategory, setActiveCategory] = useState('全部');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [wechatPreview, setWechatPreview] = useState<{ url: string; name: string } | null>(null);
+  const [mobile, setMobile] = useState(false);
+
+  useEffect(() => {
+    setMobile(isMobile());
+  }, []);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -134,12 +145,7 @@ export default function App() {
     const now = new Date();
     const cnNums = ['〇','一','二','三','四','五','六','七','八','九'];
     const toCn = (n: number) => String(n).split('').map(d => cnNums[parseInt(d)]).join('');
-    const year = toCn(now.getFullYear());   // e.g. 二〇二六
-    const month = now.getMonth() + 1;
-    const day = now.getDate();
-    const cnMonth = month <= 9 ? cnNums[month] : '十' + (month > 10 ? cnNums[month - 10] : '');
-    const cnDay = day < 10 ? cnNums[day] : (day === 10 ? '十' : (day < 20 ? '十' + cnNums[day - 10] : (day === 20 ? '二十' : '二十' + cnNums[day - 20])));
-    const dateText = `${year}年·${cnMonth}月·${cnDay}日`;
+    const year = toCn(now.getFullYear());
 
     const dateEl = document.createElement('div');
     dateEl.style.cssText = `
@@ -190,7 +196,7 @@ export default function App() {
     footer.style.cssText = 'display: flex; align-items: center; justify-content: flex-start;';
     const footerLogo = document.createElement('img');
     footerLogo.src = '/logo.png';
-    footerLogo.style.cssText = 'height: 28px; object-fit: contain;';
+    footerLogo.style.cssText = 'height: 28px; object-fit: contain; mix-blend-mode: multiply;';
     footer.appendChild(footerLogo);
     inner.appendChild(footer);
 
@@ -224,12 +230,19 @@ export default function App() {
         allowTaint: false,
         logging: false,
       });
-      const link = document.createElement('a');
-      link.download = `毕业寄语-${teacherName}.png`;
-      link.href = canvas.toDataURL('image/png');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const dataUrl = canvas.toDataURL('image/png');
+
+      if (isWeChat()) {
+        // 微信：顯示預覽圖讓用戶長按保存
+        setWechatPreview({ url: dataUrl, name: teacherName });
+      } else {
+        const link = document.createElement('a');
+        link.download = `毕业寄语-${teacherName}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } finally {
       document.body.removeChild(card);
       setDownloadingId(null);
@@ -351,6 +364,27 @@ export default function App() {
         .deco-star { animation: twinkle var(--dur) var(--delay) ease-in-out infinite; }
       `}</style>
 
+      {/* 微信長按下載覆蓋層 */}
+      {wechatPreview && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={() => setWechatPreview(null)}
+        >
+          <p style={{ color: '#fff', fontSize: '15px', marginBottom: '16px', letterSpacing: '0.05em' }}>
+            长按图片保存到手机
+          </p>
+          <img
+            src={wechatPreview.url}
+            alt={wechatPreview.name}
+            style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: '4px', boxShadow: '0 4px 24px rgba(0,0,0,0.5)' }}
+            onClick={e => e.stopPropagation()}
+          />
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', marginTop: '16px' }}>
+            点击空白处关闭
+          </p>
+        </div>
+      )}
+
       {/* 紙飛機 Canvas —— 鋪在整頁背景，卡片在其上方 */}
       <canvas
         id="plane-canvas"
@@ -361,12 +395,11 @@ export default function App() {
       <section className="relative flex flex-col items-center justify-end bg-center bg-no-repeat"
         style={{ zIndex: 1, minHeight: '100svh' }}
       >
-        {/* 電腦版背景 */}
-        <div className="absolute inset-0 hidden md:block bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/hero.png)', backgroundSize: '80%' }} />
-        {/* 手機版背景 */}
-        <div className="absolute inset-0 block md:hidden bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/hero-mobile.png)', backgroundSize: 'contain' }} />
+        {/* 背景圖層 */}
+        <div className="absolute inset-0 bg-center bg-no-repeat" style={{
+          backgroundImage: mobile ? 'url(/hero-mobile.png)' : 'url(/hero.png)',
+          backgroundSize: mobile ? 'contain' : '80%',
+        }} />
 
         <div
           className="relative z-10 mb-10 flex flex-col items-center text-slate-600 hover:text-blue-500 transition-colors cursor-pointer animate-bounce"
