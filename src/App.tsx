@@ -45,7 +45,7 @@ const TEACHER_MESSAGES: TeacherMessage[] = [
   { id: 'msg-18', name: '胡星灿', title: '专业教师', category: '专业教师', content: '庄敬日强，安肆日偷。', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=HuXingCan&backgroundColor=fed7aa' },
   { id: 'msg-xu', name: '徐俊刚', title: '专业教师', category: '专业教师', content: '坦塗奈樂，靈兮自藏', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=XuJunGang&backgroundColor=d1fae5', image: '/xu-jungang.png' },
   { id: 'msg-16', name: '邱晓丹', title: '专业教师', category: '专业教师', content: '亲爱的2026届文珠学子们：当你们在2026年夏天合上本科时代最后一页，世界或许正翻开新的篇章。请你们带着文学赋予你们的眼光，走向更广阔的人生。请记得，叙事的力量永远在于对抗遗忘与简化。愿你们成为复杂意义的守护者，在众声喧哗中依然关心细微的情感。愿你们拥有鲁迅式的清醒与锋芒，也有托尔斯泰式的悲悯与追问，还有莎士比亚式的丰富与洞察。愿你们用人生书写一部部属于你们自己的宏大篇章。毕业快乐，前程似锦！', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=QiuXiaoDan&backgroundColor=e2e8f0' },
-  { id: 'msg-21', name: '许树妙', title: '专业教师', category: '专业教师', content: '祝愿2022级同学毕业快乐！在新的人生旅途一路高歌，鹏程万里。', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=XuShuMiao&backgroundColor=e2e8f0' },
+  { id: 'msg-21', name: '许树妙', title: '专业教师', category: '专业教师', content: '祝愿2026届同学毕业快乐！在新的人生旅途一路高歌，鹏程万里。', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=XuShuMiao&backgroundColor=e2e8f0' },
   { id: 'msg-20', name: '刘杰',   title: '专业教师', category: '专业教师', content: '这是一个潮水般变幻的时代。但请相信，技术能拓展视野，而你们感知美的灵性不可替代。愿大家拥抱变化，心中有诗，前路有光。毕业快乐！祝大家一切顺利，前程似锦！', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=LiuJie&backgroundColor=fef08a' },
   { id: 'msg-19', name: '吉云飞', title: '专业教师', category: '专业教师', content: '不要一直被恐惧驱赶着去行动，你们比自己想象中更安全也有更多的自由。', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=JiYunFei&backgroundColor=a7f3d0' },
   { id: 'msg-24', name: '代云芳', title: '专业教师', category: '专业教师', content: '人生这出大戏，我们都在场上，光可以自己打，话筒可以手工搓，唱便是了！', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=DaiYunFang&backgroundColor=a7f3d0' },
@@ -57,15 +57,15 @@ const TEACHER_MESSAGES: TeacherMessage[] = [
   { id: 'msg-28', name: '黄琳',   title: '专业教师', category: '专业教师', content: '"有工夫读书，谓之福；有力量济人，谓之福；有学问著述，谓之福；无是非到耳，谓之福；有多闻、直、谅之友，谓之福。"（张潮《幽梦影》）\n祝2026届的同学们五福骈臻，前程似海，来日方长！', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=HuangLin&backgroundColor=fed7aa' },
   { id: 'msg-29', name: '蒋浩然', title: '专业教师', category: '专业教师', content: '若海的微澜，推远了初夏的流云，\n凤凰山的草木，又深了一层青绿。\n当行囊打点妥当，\n别忘了再装上几两唐家湾的晚风。此去人海茫茫，步履或有匆忙，\n若遇上无星无月的长夜，\n愿这阵风，能替你翻开案头的旧书。', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=JiangHaoRan&backgroundColor=a7f3d0' },
   { id: 'msg-31', name: '李柏林', title: '专业教师', category: '专业教师', content: '人生中一大问题是所择取。青年须有这个见地：形而下的学问西方有其优长，而形而上的学问，即精神与安身立命之学问，中国古学所达到的精深透彻的高度，实有其不可替代之价值。青年要将这个文化命脉传承下去。至于生命的学问，须知生命是一个过程，青年幻想于爱情，中年汲汲于名利，面对这所有之事要有向上之心，亦要有豁达超然之胸怀，能事人，亦要能事天，能知世，亦要能知命。于物来顺应之中守护生命之本真，困惑之时，则不妨于古学之中寻求指引。', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=LiBaiLin&backgroundColor=e2e8f0' },
-  { id: 'msg-32', name: '李星雨', title: '专业教师', category: '专业教师', content: 'The scary news is you\'re on your own now.\n\nThe cool news is you\'re on your own now', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=LiXingYu&backgroundColor=bae6fd' },
+  { id: 'msg-32', name: '李星雨', title: '专业教师', category: '专业教师', content: 'The scary news is you\'re on your own now.\n\nThe cool news is you\'re on your own now.', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=LiXingYu&backgroundColor=bae6fd' },
   { id: 'msg-33', name: 'Roman Lashin（张力允）', title: '专业教师', category: '专业教师', content: '毕业不是终点，而是新征程的起点。愿你们带着文珠的记忆，向更远的地方出发。无论顺境逆境，都要记得：保持善良，坚持热爱，相信自己。祝你们毕业快乐！', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Roman&backgroundColor=fed7aa' },
   { id: 'msg-34', name: '万笛',   title: '专业教师', category: '专业教师', content: '数载匆匆，相聚别离，明日启程，各赴山海，愿同学们以理想为地图，用坚持作脚步，写出更精彩的人生故事。', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=WanDi&backgroundColor=a7f3d0' },
 ];
 
-const CATEGORIES = ['党政教师', '专业教师'];
+const CATEGORIES = ['专业教师', '党政教师'];
 
 export default function App() {
-  const [activeCategory, setActiveCategory] = useState('党政教师');
+  const [activeCategory, setActiveCategory] = useState('专业教师');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [wechatPreview, setWechatPreview] = useState<{ url: string; name: string } | null>(null);
   const [mobile, setMobile] = useState(false);
